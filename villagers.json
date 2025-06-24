@@ -1,0 +1,161 @@
+[
+  {
+    "id": 1,
+    "name": "Rolf",
+    "animalType": "tiger",
+    "personality": "cranky"
+  },
+  {
+    "id": 2,
+    "name": "Tybalt",
+    "animalType": "tiger",
+    "personality": "jock"
+  },
+  {
+    "id": 3,
+    "name": "Bianca",
+    "animalType": "tiger",
+    "personality": "peppy"
+  },
+  {
+    "id": 4,
+    "name": "Claudia",
+    "animalType": "tiger",
+    "personality": "snooty"
+  },
+
+
+
+  {
+    "id": 5,
+    "name": "Fang",
+    "animalType": "wolf",
+    "personality": "cranky"
+  },
+  {
+    "id": 6,
+    "name": "Whitney",
+    "animalType": "wolf",
+    "personality": "snooty"
+  },
+  {
+    "id": 7,
+    "name": "Skye",
+    "animalType": "wolf",
+    "personality": "normal"
+  },
+  {
+    "id": 8,
+    "name": "Dobie",
+    "animalType": "wolf",
+    "personality": "lazy"
+  },
+
+
+
+  {
+    "id": 9,
+    "name": "Goldie",
+    "animalType": "dog",
+    "personality": "normal"
+  },
+  {
+    "id": 10,
+    "name": "Lucky",
+    "animalType": "dog",
+    "personality": "lazy"
+  },
+  {
+    "id": 11,
+    "name": "Cherry",
+    "animalType": "dog",
+    "personality": "smug"
+  },
+  {
+    "id": 12,
+    "name": "Butch",
+    "animalType": "dog",
+    "personality": "cranky"
+  },
+
+
+
+  {
+    "id": 13,
+    "name": "Bob",
+    "animalType": "cat",
+    "personality": "lazy"
+  },
+  {
+    "id": 14,
+    "name": "Raymond",
+    "animalType": "cat",
+    "personality": "smug"
+  },
+  {
+    "id": 15,
+    "name": "Rosie",
+    "animalType": "cat",
+    "personality": "peppy"
+  },
+  {
+    "id": 16,
+    "name": "Tom",
+    "animalType": "cat",
+    "personality": "cranky"
+  },
+
+
+
+  {
+    "id": 17,
+    "name": "Apollo",
+    "animalType": "eagle",
+    "personality": "cranky"
+  },
+  {
+    "id": 18,
+    "name": "Sterling",
+    "animalType": "eagle",
+    "personality": "jock"
+  },
+  {
+    "id": 19,
+    "name": "Quinn",
+    "animalType": "eagle",
+    "personality": "smug"
+  },
+  {
+    "id": 20,
+    "name": "Amelia",
+    "animalType": "eagle",
+    "personality": "snooty"
+  },
+
+
+
+  {
+    "id": 21,
+    "name": "Chadder",
+    "animalType": "mouse",
+    "personality": "smug"
+  },
+  {
+    "id": 22,
+    "name": "Petri",
+    "animalType": "mouse",
+    "personality": "snooty"
+  },
+  {
+    "id": 23,
+    "name": "Rod",
+    "animalType": "mouse",
+    "personality": "jock"
+  },
+  {
+    "id": 24,
+    "name": "Dora",
+    "animalType": "mouse",
+    "personality": "normal"
+  }
+]

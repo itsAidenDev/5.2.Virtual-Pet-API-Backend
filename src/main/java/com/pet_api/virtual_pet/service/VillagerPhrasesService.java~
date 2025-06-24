@@ -1,0 +1,4 @@
+package com.pet_api.virtual_pet.service;
+
+public class VillagerPhrasesService {
+}
