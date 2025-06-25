@@ -1,6 +1,5 @@
 package com.pet_api.virtual_pet.security;
 
-
 import com.pet_api.virtual_pet.exception.custom.UserNotFoundException;
 import com.pet_api.virtual_pet.model.User;
 import com.pet_api.virtual_pet.repository.UserRepository;

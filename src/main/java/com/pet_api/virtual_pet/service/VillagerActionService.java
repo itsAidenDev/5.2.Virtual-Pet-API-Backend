@@ -1,6 +1,5 @@
 package com.pet_api.virtual_pet.service;
 
-
 import com.pet_api.virtual_pet.exception.custom.HandleGenericException;
 import com.pet_api.virtual_pet.model.Villager;
 import lombok.RequiredArgsConstructor;

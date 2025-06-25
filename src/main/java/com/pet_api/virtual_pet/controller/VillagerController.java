@@ -9,13 +9,16 @@ import com.pet_api.virtual_pet.security.AuthUtil;
 import com.pet_api.virtual_pet.service.VillagerActionService;
 import com.pet_api.virtual_pet.service.VillagerService;
 import lombok.RequiredArgsConstructor;
+import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/villagers")
+@RequestMapping("/api/villagers")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 @RequiredArgsConstructor
 public class VillagerController {
 
@@ -24,27 +27,36 @@ public class VillagerController {
     private final VillagerMapper villagerMapper;
     private final VillagerActionService villagerActionService;
 
-    @GetMapping("/getAllVillagers")
+    @GetMapping
     public ResponseEntity<List<VillagerDTO>> getAllVillagers() {
         return ResponseEntity.ok(villagerService.getAllVillagers());
     }
 
-    @PostMapping("/createVillager")
+    @GetMapping("/{id}")
+    public ResponseEntity<VillagerDTO> getVillagerById(@PathVariable Long id) {
+        return ResponseEntity.ok(villagerService.getVillagerById(id));
+    }
+
+    @PostMapping("/create")
     public ResponseEntity<VillagerDTO> createVillager(@RequestBody VillagerDTO villagerDTO) {
         User currentUser = authUtil.getCurrentUser();
         VillagerDTO createdVillager = villagerService.createVillagerForUser(villagerDTO, currentUser);
-            return ResponseEntity.ok(createdVillager);
+        return ResponseEntity.ok(createdVillager);
     }
 
-    @PutMapping("/updateVillager/{villagerId}")
+    @PutMapping("/{villagerId}")
     public ResponseEntity<VillagerDTO> updateVillager(@PathVariable Long villagerId, @RequestBody VillagerDTO villagerDTO) {
         return ResponseEntity.ok(villagerService.updateVillager(villagerId, villagerDTO));
     }
 
-    @DeleteMapping("/deleteVillager/{villagerId}")
-    public ResponseEntity<Void> deleteVillager(@PathVariable Long id) {
-        villagerService.deleteVillager(id);
-        return ResponseEntity.noContent().build();
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteVillager(@PathVariable Long id, Authentication authentication) {
+        try {
+            String result = villagerService.deleteVillager(id);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Could not delete villager: " + e.getMessage());
+        }
     }
 
     @PostMapping("/{id}/sleep")
@@ -66,16 +78,14 @@ public class VillagerController {
     public ResponseEntity<ActionResultDTO> play(@PathVariable Long id) {
         return ResponseEntity.ok(villagerService.play(id));
     }
-}
-    /*
-    @PostMapping("/{id}/action")
-    public ResponseEntity<VillagerDTO> performAction(
-            @PathVariable Long id,
-            @RequestBody @Valid VillagerActionRequest request
-    ) {
-        Villager villager = villagerActionService.performAction(request.getAction(), id, request.getParameter());
-        VillagerDTO updated = villagerMapper.toDto(villager);
-        return ResponseEntity.ok(updated);
-    }
-    */
 
+    @PostMapping("/{id}/feed")
+    public ResponseEntity<ActionResultDTO> feed(@PathVariable Long id) {
+        return ResponseEntity.ok(villagerService.feed(id));
+    }
+
+    @PostMapping("/{id}/heal")
+    public ResponseEntity<ActionResultDTO> heal(@PathVariable Long id) {
+        return ResponseEntity.ok(villagerService.heal(id));
+    }
+}

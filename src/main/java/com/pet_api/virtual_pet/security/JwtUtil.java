@@ -1,6 +1,5 @@
 package com.pet_api.virtual_pet.security;
 
-
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -14,7 +13,6 @@ import java.util.function.Function;
 
 @Component
 public class JwtUtil {
-
 
     private final String secretKey;
 

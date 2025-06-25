@@ -9,12 +9,13 @@ import lombok.*;
 @Getter
 @Setter
 @NoArgsConstructor
-
+@AllArgsConstructor
+@Builder
 public class Fish {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int fishIid;
+    private Long fishId;
 
     @Column(name = "fish_name", nullable = false)
     private String fishName;
@@ -25,20 +26,15 @@ public class Fish {
     @Column(name = "fish_rarity", nullable = false)
     private String fishRarity;
 
-    @Column(name = "fish_image", nullable = false)
-    private String fishImage;
+    @Column(name = "fish_value", nullable = false)
+    @Builder.Default
+    private int fishValue = 100;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "fish_habitat", nullable = false)
     private Habitat habitat;
 
-    public Fish(int fishIid, String fishName, String fishDescription, String fishRarity, String fishImage, Habitat habitat) {
-        this.fishIid = fishIid;
-        this.fishName = fishName;
-        this.fishDescription = fishDescription;
-        this.fishRarity = fishRarity;
-        this.fishImage = fishImage;
-        this.habitat = habitat;
-    }
+    @Column(name = "catch_difficulty", nullable = false)
+    @Builder.Default
+    private double catchDifficulty = 0.5; // 0.0 = very easy, 1.0 = very hard
 }
-

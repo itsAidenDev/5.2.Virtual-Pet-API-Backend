@@ -23,6 +23,7 @@ public class VillagerMapper {
                 //.accessory(villager.getAccessory())
                 .stacks(villager.getStacks())
                 .lastSleep(villager.getLastSleep())
+                .ownerUsername(villager.getUser() != null ? villager.getUser().getUsername() : null)
                 .build();
     }
 

@@ -15,7 +15,7 @@ public class Bug {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int bugId;
+    private Long bugId;
 
     @Column(name = "bug_name", nullable = false)
     private String bugName;
@@ -26,21 +26,15 @@ public class Bug {
     @Column(name = "bug_rarity", nullable = false)
     private String bugRarity;
 
-    /*
-    @Column(name = "bug_image", nullable = false)
-    private String bugImage;
-     */
+    @Column(name = "bug_value", nullable = false)
+    @Builder.Default
+    private int bugValue = 100;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "bug_habitat", nullable = false)
     private Habitat bugHabitat;
 
-    public Bug(int bugId, String bugName, String bugDescription, String bugRarity, String bugImage, Habitat BugHabitat) {
-        this.bugId = bugId;
-        this.bugName = bugName;
-        this.bugDescription = bugDescription;
-        this.bugRarity = bugRarity;
-        // this.bugImage = bugImage;
-        this.bugHabitat = BugHabitat;
-    }
+    @Column(name = "catch_difficulty", nullable = false)
+    @Builder.Default
+    private double catchDifficulty = 0.5; // 0.0 = very easy, 1.0 = very hard
 }

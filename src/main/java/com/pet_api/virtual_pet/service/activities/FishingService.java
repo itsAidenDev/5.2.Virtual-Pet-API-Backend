@@ -1,84 +1,152 @@
 package com.pet_api.virtual_pet.service.activities;
 
+import com.pet_api.virtual_pet.dto.activities.ActivityResultDTO;
+import com.pet_api.virtual_pet.dto.activities.FishDTO;
+import com.pet_api.virtual_pet.exception.custom.VillagerNotFoundException;
+import com.pet_api.virtual_pet.mapper.FishMapper;
+import com.pet_api.virtual_pet.model.activities.CaughtFish;
+import com.pet_api.virtual_pet.model.Villager;
 import com.pet_api.virtual_pet.model.activities.Fish;
-import com.pet_api.virtual_pet.model.activities.FishingSpot;
+import com.pet_api.virtual_pet.repository.CaughtFishRepository;
+import com.pet_api.virtual_pet.repository.FishRepository;
+import com.pet_api.virtual_pet.repository.VillagerRepository;
 import com.pet_api.virtual_pet.utils.Habitat;
-import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+@Service
+@RequiredArgsConstructor
 public class FishingService {
-    @Getter
-    private List<FishingSpot> fishingSpots;
-    private List<Fish> fish;
-    private Random random = new Random();
 
-    public FishingService() {
-        this.fishingSpots = new ArrayList<>();
-        this.fish = new ArrayList<>();
+    private final FishRepository fishRepository;
+    private final CaughtFishRepository caughtFishRepository;
+    private final VillagerRepository villagerRepository;
+    private final FishMapper fishMapper;
+    private final Random random = new Random();
 
-        Fish goldfish = new Fish(1, "Goldfish", "A common fish", "common", "goldfish.png", Habitat.POND);
-        Fish cod = new Fish(2, "Cod", "A small fish", "common", "cod.png", Habitat.POND);
-        Fish sardine = new Fish(3, "Sardine", "A small fish", "common", "sardine.png", Habitat.OCEAN);
-        Fish tuna = new Fish(4, "Tuna", "A large fish", "uncommon", "tuna.png", Habitat.OCEAN);
-        Fish salmon = new Fish(5, "Salmon", "A popular fish", "uncommon", "salmon.png", Habitat.RIVER);
-        Fish trout = new Fish(6, "Trout", "A small fish", "rare", "trout.png", Habitat.RIVER);
-        Fish shark = new Fish(7, "Shark", "A dangerous fish", "legendary", "shark.png", Habitat.OCEAN);
-
-        fish.add(goldfish);
-        fish.add(cod);
-        fish.add(sardine);
-        fish.add(tuna);
-        fish.add(salmon);
-        fish.add(trout);
-        fish.add(shark);
-
-        FishingSpot pond = new FishingSpot(1, "Pond", "A peaceful pond", "park", Arrays.asList(goldfish, cod));
-        FishingSpot river = new FishingSpot(2, "River", "A fast-moving river", "mountains", Arrays.asList(salmon, trout));
-        FishingSpot ocean = new FishingSpot(3, "Ocean", "A vast ocean", "ocean", Arrays.asList(sardine, tuna, shark));
-
-        fishingSpots.add(pond);
-        fishingSpots.add(river);
-        fishingSpots.add(ocean);
+    public List<FishDTO> getAllFish() {
+        return fishRepository.findAll().stream()
+                .map(fishMapper::toDto)
+                .toList();
     }
 
-    public Fish catchFish(FishingSpot spot) {
-        // check if the spot is valid
-        if (!fishingSpots.contains(spot)) {
-            return null;
+    public List<FishDTO> getCaughtFish(Long villagerId) {
+        return caughtFishRepository.findByVillagerVillagerId(villagerId).stream()
+                .map(caughtFish -> {
+                    FishDTO dto = fishMapper.toDto(caughtFish.getFish());
+                    dto.setCaughtAt(caughtFish.getCaughtAt());
+                    dto.setLocation(caughtFish.getLocation());
+                    return dto;
+                })
+                .toList();
+    }
+
+    @Transactional
+    public ActivityResultDTO attemptFishCatch(Long villagerId, String habitatName) {
+        Villager villager = villagerRepository.findById(villagerId)
+                .orElseThrow(() -> new VillagerNotFoundException("Villager not found"));
+
+        if (villager.getEnergy() < 15) {
+            return ActivityResultDTO.builder()
+                    .success(false)
+                    .message("Your villager is too tired to fish! Let them rest first.")
+                    .build();
         }
 
-        // get the list of available fish at the spot
-        List<Fish> availableFish = spot.getAvailableFish();
+        int newHunger = Math.min(100, villager.getHunger() + 10);
+        villager.setHunger(newHunger);
 
-        // if there are no fish available, return null
+        Habitat habitat;
+        try {
+            habitat = Habitat.valueOf(habitatName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return ActivityResultDTO.builder()
+                    .success(false)
+                    .message("Invalid habitat: " + habitatName)
+                    .build();
+        }
+
+        List<Fish> availableFish = fishRepository.findByHabitat(habitat);
         if (availableFish.isEmpty()) {
-            return null;
+            return ActivityResultDTO.builder()
+                    .success(false)
+                    .message("No fish available in this habitat!")
+                    .build();
         }
 
-        // calculate the chance of catching a fish based on the spot's difficulty
-        double chance = 0.5; // default chance
-        switch (spot.getFishingSpotName()) {
-            case "Pond":
-                chance = 0.7; // easier to catch fish in a pond
-                break;
-            case "River":
-                chance = 0.3; // harder to catch fish in a river
-                break;
+        Random random = new Random();
+        if (random.nextInt(100) < 20) { // 20% de probabilidad en actividades
+            int healthReduction = random.nextInt(8) + 3; // Entre 3-10 puntos
+            int newHealth = Math.max(10, villager.getHealthLevel() - healthReduction);
+            villager.setHealthLevel(newHealth);
         }
 
-        // roll a random number to determine if the player catches a fish
-        double roll = random.nextDouble();
-        if (roll < chance) {
-            // player catches a fish, return a random fish from the available list
-            return availableFish.get(random.nextInt(availableFish.size()));
+        // Consume energy (fishing takes more energy than bug catching)
+        villager.decreaseEnergy(15);
+
+        // Attempt to catch a fish
+        Fish targetFish = availableFish.get(random.nextInt(availableFish.size()));
+        double catchChance = calculateCatchChance(villager, targetFish);
+
+        if (random.nextDouble() < catchChance) {
+            // Success! Catch the fish
+            CaughtFish caughtFish = CaughtFish.builder()
+                    .villager(villager)
+                    .fish(targetFish)
+                    .location(habitat.getHabitatName())
+                    .build();
+
+            caughtFishRepository.save(caughtFish);
+
+            // Increase friendship and happiness
+            int friendshipGain = calculateFriendshipGain(targetFish.getFishRarity());
+            villager.increaseFriendship(friendshipGain);
+            villager.increaseHappiness(7); // Slightly more happiness than bug catching
+
+            villagerRepository.save(villager);
+
+            FishDTO caughtFishDTO = fishMapper.toDto(targetFish);
+            caughtFishDTO.setCaughtAt(caughtFish.getCaughtAt());
+            caughtFishDTO.setLocation(caughtFish.getLocation());
+
+            return ActivityResultDTO.builder()
+                    .success(true)
+                    .message("Great catch! You caught a " + targetFish.getFishName() + "!")
+                    .caughtItem(caughtFishDTO)
+                    .experienceGained(targetFish.getFishValue())
+                    .friendshipGained(friendshipGain)
+                    .build();
         } else {
-            // player doesn't catch a fish, return null
-            return null;
+            // Failed to catch
+            villagerRepository.save(villager);
+            return ActivityResultDTO.builder()
+                    .success(false)
+                    .message("The fish got away! Keep trying.")
+                    .experienceGained(7) // Small consolation prize
+                    .build();
         }
+    }
+
+    private double calculateCatchChance(Villager villager, Fish fish) {
+        double baseChance = 0.5; // 50% base chance (slightly lower than bugs)
+        double difficultyModifier = 1.0 - fish.getCatchDifficulty();
+        double friendshipBonus = villager.getFriendshipLevel() * 0.002; // Up to 20% bonus at max friendship
+        double energyPenalty = villager.getEnergy() < 30 ? 0.25 : 0; // 25% penalty if low energy
+
+        return Math.max(0.1, Math.min(0.9, baseChance * difficultyModifier + friendshipBonus - energyPenalty));
+    }
+
+    private int calculateFriendshipGain(String rarity) {
+        return switch (rarity.toLowerCase()) {
+            case "common" -> 2;
+            case "uncommon" -> 3;
+            case "rare" -> 4;
+            case "legendary" -> 6;
+            default -> 2;
+        };
     }
 }
-

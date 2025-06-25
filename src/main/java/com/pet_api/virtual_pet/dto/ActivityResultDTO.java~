@@ -1,4 +1,4 @@
 package com.pet_api.virtual_pet.dto;
 
-public class ActionResultDTO {
+public class ActivityResultDTO {
 }

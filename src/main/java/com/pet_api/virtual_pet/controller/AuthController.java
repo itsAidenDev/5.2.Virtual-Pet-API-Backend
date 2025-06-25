@@ -27,8 +27,8 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody LoginRequest request){
-        String username = request.getUsername();
-        String password = request.getPassword();
+        String username = request.username();
+        String password = request.password();
 
         if(userRepository.findByUsername(username).isPresent()){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("username already exists");
@@ -45,8 +45,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        String username = request.getUsername();
-        String password = request.getPassword();
+        String username = request.username();
+        String password = request.password();
 
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if (optionalUser.isPresent()) {

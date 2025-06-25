@@ -1,6 +1,5 @@
 package com.pet_api.virtual_pet.exception.custom;
 
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.access.AccessDeniedException;
