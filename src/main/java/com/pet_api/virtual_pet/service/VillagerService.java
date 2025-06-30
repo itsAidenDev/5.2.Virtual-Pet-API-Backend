@@ -73,14 +73,18 @@ public class VillagerService {
 
         User currentUser = authUtil.getCurrentUser();
 
-        // Solo el dueño o un admin puede modificar
-        if (!villager.getUser().getUsername().equals(currentUser.getUsername())
-                && !currentUser.getRole().equals("ROLE_ADMIN")) {
-            throw new RuntimeException("Unauthorized");
+        boolean isAdmin = currentUser.getRole().equals("ROLE_ADMIN");
+        boolean isOwner = villager.getUser().getUsername().equals(currentUser.getUsername());
+
+        if (!isAdmin && !isOwner) {
+            throw new RuntimeException("Unauthorized to modify this villager");
         }
 
+        // Solo se actualiza el nombre por ahora
         villager.setVillagerName(villagerDTO.getVillagerName());
-        return villagerMapper.toDto(villagerRepository.save(villager));
+
+        villagerRepository.save(villager);
+        return villagerMapper.toDto(villager);
     }
 
     @Transactional
