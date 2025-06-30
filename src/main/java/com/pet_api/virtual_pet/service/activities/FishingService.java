@@ -10,6 +10,8 @@ import com.pet_api.virtual_pet.model.activities.Fish;
 import com.pet_api.virtual_pet.repository.activities.CaughtFishRepository;
 import com.pet_api.virtual_pet.repository.activities.FishRepository;
 import com.pet_api.virtual_pet.repository.VillagerRepository;
+import com.pet_api.virtual_pet.service.MuseumService;
+import com.pet_api.virtual_pet.model.museum.MuseumRecord;
 import com.pet_api.virtual_pet.utils.Habitat;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +27,7 @@ public class FishingService {
     private final FishRepository fishRepository;
     private final CaughtFishRepository caughtFishRepository;
     private final VillagerRepository villagerRepository;
+    private final MuseumService museumService;
     private final FishMapper fishMapper;
     private final Random random = new Random();
 
@@ -79,8 +82,8 @@ public class FishingService {
         }
 
         Random random = new Random();
-        if (random.nextInt(100) < 20) { // 20% de probabilidad en actividades
-            int healthReduction = random.nextInt(8) + 3; // Entre 3-10 puntos
+        if (random.nextInt(100) < 20) { // 20% of chance
+            int healthReduction = random.nextInt(8) + 3; // Between 3-10 points
             int newHealth = Math.max(10, villager.getHealthLevel() - healthReduction);
             villager.setHealthLevel(newHealth);
         }
@@ -101,6 +104,19 @@ public class FishingService {
                     .build();
 
             caughtFishRepository.save(caughtFish);
+
+            // Register the discovery in the museum
+            try {
+                museumService.registerNewDiscovery(
+                        villagerId,
+                        MuseumRecord.RecordType.FISH,
+                        targetFish.getFishId(),
+                        habitat.getHabitatName()
+                );
+            } catch (Exception e) {
+                // Log the error but don't fail the operation
+                System.err.println("Error registering fish in museum: " + e.getMessage());
+            }
 
             // Increase friendship and happiness
             int friendshipGain = calculateFriendshipGain(targetFish.getFishRarity());

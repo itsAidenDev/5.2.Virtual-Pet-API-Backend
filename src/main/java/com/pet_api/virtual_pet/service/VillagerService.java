@@ -54,12 +54,12 @@ public class VillagerService {
         Villager villager = villagerMapper.toEntity(villagerDTO);
         villager.setUser(user);
 
-        // Establecer valores iniciales
+        // Set initial values
         villager.setFriendshipLevel(0);
         villager.setHappiness(70);
         villager.setHunger(30);
         villager.setEnergy(80);
-        villager.setHealthLevel(50); // SALUD INICIAL AL 50%
+        villager.setHealthLevel(50);
         villager.setLastSleep(LocalDateTime.now());
 
         Villager savedVillager = villagerRepository.save(villager);
@@ -80,7 +80,6 @@ public class VillagerService {
             throw new RuntimeException("Unauthorized to modify this villager");
         }
 
-        // Solo se actualiza el nombre por ahora
         villager.setVillagerName(villagerDTO.getVillagerName());
 
         villagerRepository.save(villager);
@@ -96,7 +95,7 @@ public class VillagerService {
         Villager villager = villagerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Villager not found"));
 
-        // Verificar si el usuario es administrador o el dueño del aldeano
+        // Verify ownership
         boolean isAdmin = currentUser.getRole().equals("ROLE_ADMIN");
         boolean isOwner = villager.getUser().equals(user);
 
@@ -129,18 +128,18 @@ public class VillagerService {
 
         User currentUser = authUtil.getCurrentUser();
 
-        // Verificar permisos
+        // Verify permissions
         if (!currentUser.getRole().equals("ROLE_ADMIN") &&
                 !villager.getUser().getUsername().equals(currentUser.getUsername())) {
-            throw new UnauthorizedAccessException("No tienes permiso para modificar este aldeano");
+            throw new UnauthorizedAccessException("You do not have permission to modify this villager");
         }
 
-        // Validar el nuevo nombre
+        // Validate new name
         if (newName == null || newName.trim().isEmpty()) {
-            throw new IllegalArgumentException("El nombre no puede estar vacío");
+            throw new IllegalArgumentException("The name cannot be empty");
         }
 
-        // Actualizar el nombre
+        // Update villager name
         villager.setVillagerName(newName.trim());
         Villager updatedVillager = villagerRepository.save(villager);
 
@@ -213,7 +212,7 @@ public class VillagerService {
         Villager villager = villagerRepository.findById(villagerId)
                 .orElseThrow(() -> new RuntimeException("Villager not found"));
 
-        // Verificar si tiene suficiente energía
+        // Verify if the villager is tired
         if (villager.getEnergy() < 20) {
             return ActionResultDTO.builder()
                     .message(villager.getVillagerName() + " is too tired to play. They need to rest! 😴")
@@ -222,7 +221,7 @@ public class VillagerService {
                     .build();
         }
 
-        // Verificar si está muy enfermo
+        // Verify if the villager is ill
         if (villager.getHealthLevel() < 20) {
             return ActionResultDTO.builder()
                     .message(villager.getVillagerName() + " feels too ill to play. He needs medical attention! 🏥")
@@ -231,22 +230,21 @@ public class VillagerService {
                     .build();
         }
 
-        // Reducir energía por jugar
+        // Reduce energy when playing
         int newEnergy = Math.max(0, villager.getEnergy() - 20);
         villager.setEnergy(newEnergy);
 
-        // Aumentar hambre por la actividad
+        // Increase hunger through activity
         int newHunger = Math.min(100, villager.getHunger() + 15);
         villager.setHunger(newHunger);
 
-        // Aumentar felicidad y amistad
+        // Increase happiness and friendship
         int newHappiness = Math.min(100, villager.getHappiness() + 15);
         villager.setHappiness(newHappiness);
 
         int newFriendship = Math.min(100, villager.getFriendshipLevel() + 5);
         villager.setFriendshipLevel(newFriendship);
 
-        // AGREGAR: Posibilidad de reducir salud
         checkHealthReduction(villager);
 
         villagerRepository.save(villager);
@@ -270,19 +268,19 @@ public class VillagerService {
         Villager villager = villagerRepository.findById(villagerId)
                 .orElseThrow(() -> new RuntimeException("Villager not found"));
 
-        // Reducir hambre (el aldeano se sacia)
-        int newHunger = Math.max(0, villager.getHunger() - 30); // Reduce 30 puntos de hambre
+        // Reduce hunger (if it's not already 0)
+        int newHunger = Math.max(0, villager.getHunger() - 30); // Reduces 30 points of hunger
         villager.setHunger(newHunger);
 
-        // Reducir energía porque comer da sueño
-        int newEnergy = Math.max(10, villager.getEnergy() - 15); // Reduce 15 puntos de energía
+        // Reduce energy because eating makes you tired
+        int newEnergy = Math.max(10, villager.getEnergy() - 15); // Reduces 15 points of energy
         villager.setEnergy(newEnergy);
 
-        // Aumentar un poco la felicidad
+        // Increase happiness a little bit
         int newHappiness = Math.min(100, villager.getHappiness() + 10);
         villager.setHappiness(newHappiness);
 
-        // Pequeño aumento en amistad
+        // Small increase in friendship
         int newFriendship = Math.min(100, villager.getFriendshipLevel() + 2);
         villager.setFriendshipLevel(newFriendship);
 
@@ -323,7 +321,7 @@ public class VillagerService {
         Villager villager = villagerRepository.findById(villagerId)
                 .orElseThrow(() -> new RuntimeException("Villager not found"));
 
-        // Verificar si necesita curación
+        // Verify if the villager needs treatment
         if (villager.getHealthLevel() >= 90) {
             return ActionResultDTO.builder()
                     .message(villager.getVillagerName() + " is already very healthy! They don't need treatment. 💚")
@@ -332,19 +330,19 @@ public class VillagerService {
                     .build();
         }
 
-        // Curar al aldeano
-        int newHealth = Math.min(100, villager.getHealthLevel() + 40); // Cura 40 puntos
+        // Heal the villager
+        int newHealth = Math.min(100, villager.getHealthLevel() + 40); // Heals 40 points
         villager.setHealthLevel(newHealth);
 
-        // Reducir un poco de energía por el tratamiento
+        // Reduce energy a little bit because of the treatment
         int newEnergy = Math.max(5, villager.getEnergy() - 10);
         villager.setEnergy(newEnergy);
 
-        // Aumentar un poco la felicidad
+        // Increase happiness a little bit
         int newHappiness = Math.min(100, villager.getHappiness() + 15);
         villager.setHappiness(newHappiness);
 
-        // Pequeño aumento en amistad por cuidarlo
+        // Small increase in friendship for healing them
         int newFriendship = Math.min(100, villager.getFriendshipLevel() + 3);
         villager.setFriendshipLevel(newFriendship);
 
@@ -369,13 +367,13 @@ public class VillagerService {
     private void checkHealthReduction(Villager villager) {
         Random random = new Random();
 
-        // 15% de probabilidad de que baje la salud en actividades
+        // 15% of chance for health to decrease in activities
         if (random.nextInt(100) < 15) {
             int healthReduction = random.nextInt(10) + 5; // Entre 5-14 puntos
             int newHealth = Math.max(10, villager.getHealthLevel() - healthReduction);
             villager.setHealthLevel(newHealth);
 
-            // Si la salud baja mucho, también afecta la felicidad
+            // If health drops a lot, it also affects happiness
             if (newHealth < 30) {
                 int newHappiness = Math.max(10, villager.getHappiness() - 10);
                 villager.setHappiness(newHappiness);

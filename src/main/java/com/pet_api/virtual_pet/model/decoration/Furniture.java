@@ -26,20 +26,20 @@ public class Furniture {
     private int price;
 
     @Column(nullable = false)
-    private String category; // Ej: "bed", "chair", "table", "decoration"
+    private String category;
 
     @Column(name = "image_url")
     private String imageUrl;
 
     @Column(name = "happiness_boost")
-    private int happinessBoost; // Aumento de felicidad al colocar el mueble
+    private int happinessBoost; // Happiness boost when placing furniture
 
     @Column(name = "energy_boost")
-    private int energyBoost; // Aumento de energía al interactuar con el mueble
+    private int energyBoost; // Energy boost when interacting with furniture
 
     @Column(nullable = false)
     private String rarity; // "common", "uncommon", "rare", "legendary"
 
     @Column(name = "is_interactive", nullable = false)
-    private boolean isInteractive; // Si el aldeano puede interactuar con este mueble
+    private boolean isInteractive; // If the villager can interact with this furniture
 }

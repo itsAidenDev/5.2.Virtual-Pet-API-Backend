@@ -63,11 +63,10 @@ public class ShopService {
             throw new InsufficientFundsException("Insufficient funds");
         }
 
-        // Deduce el precio del saldo del usuario
         user.setPoints(user.getPoints() - furniture.getPrice());
         userRepository.save(user);
 
-        // Crea el mueble para el aldeano
+        // Creates new furniture and adds it to the villager
         VillagerFurniture villagerFurniture = VillagerFurniture.builder()
                 .villager(villager)
                 .furniture(furniture)
@@ -115,7 +114,7 @@ public class ShopService {
         Villager villager = villagerFurniture.getVillager();
         Furniture furniture = villagerFurniture.getFurniture();
 
-        // Aplica los beneficios del mueble
+        // Applies the effects of the furniture
         villager.setHappiness(Math.min(100, villager.getHappiness() + furniture.getHappinessBoost()));
         villager.setEnergy(Math.min(100, villager.getEnergy() + furniture.getEnergyBoost()));
 

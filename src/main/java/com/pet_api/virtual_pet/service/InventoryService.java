@@ -130,7 +130,6 @@ public class InventoryService {
     }
 
     public void deleteInventoryItem(String username, String itemId) {
-        // Parse item ID to get type and database ID
         String[] parts = itemId.split("_");
         if (parts.length != 2) {
             throw new RuntimeException("Invalid item ID format");
@@ -146,7 +145,7 @@ public class InventoryService {
             CaughtBug caughtBug = caughtBugRepository.findById(dbId)
                     .orElseThrow(() -> new RuntimeException("Bug not found"));
 
-            // Verify ownership
+            // Verify ownership of the bug
             if (!caughtBug.getVillager().getUser().equals(user)) {
                 throw new RuntimeException("You don't own this item");
             }
@@ -156,7 +155,7 @@ public class InventoryService {
             CaughtFish caughtFish = caughtFishRepository.findById(dbId)
                     .orElseThrow(() -> new RuntimeException("Fish not found"));
 
-            // Verify ownership
+            // Verify ownership of the fish
             if (!caughtFish.getVillager().getUser().equals(user)) {
                 throw new RuntimeException("You don't own this item");
             }
@@ -168,8 +167,6 @@ public class InventoryService {
     }
 
     public String useInventoryItem(String username, String itemId) {
-        // For now, using an item just gives points to a random villager
-        // You can expand this to have different effects for different items
 
         String[] parts = itemId.split("_");
         if (parts.length != 2) {
@@ -262,8 +259,6 @@ public class InventoryService {
     public String sellInventoryItem(String username, String itemId) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("User not found"));
-
-        // Parse the item ID to get type and database ID
         String[] parts = itemId.split("_");
         if (parts.length != 2) {
             throw new RuntimeException("Invalid item ID format");

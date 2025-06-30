@@ -26,7 +26,6 @@ public class User {
     private String password;
     private String role;
 
-
     @Column(nullable = false)
     @Builder.Default
     private int points = 1000;

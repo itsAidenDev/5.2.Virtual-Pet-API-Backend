@@ -19,5 +19,4 @@ public class InventoryStatsDTO {
         this.uniqueSpecies = uniqueSpecies;
         this.rareItems = rareItems;
     }
-
 }

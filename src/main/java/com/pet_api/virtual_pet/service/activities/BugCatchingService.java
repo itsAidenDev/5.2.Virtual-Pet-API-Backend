@@ -7,6 +7,8 @@ import com.pet_api.virtual_pet.mapper.BugMapper;
 import com.pet_api.virtual_pet.model.activities.CaughtBug;
 import com.pet_api.virtual_pet.model.Villager;
 import com.pet_api.virtual_pet.model.activities.Bug;
+import com.pet_api.virtual_pet.service.MuseumService;
+import com.pet_api.virtual_pet.model.museum.MuseumRecord;
 import com.pet_api.virtual_pet.repository.activities.BugRepository;
 import com.pet_api.virtual_pet.repository.activities.CaughtBugRepository;
 import com.pet_api.virtual_pet.repository.VillagerRepository;
@@ -25,6 +27,7 @@ public class BugCatchingService {
     private final CaughtBugRepository caughtBugRepository;
     private final VillagerRepository villagerRepository;
     private final BugMapper bugMapper;
+    private final MuseumService museumService;
     private final Random random = new Random();
 
     public List<BugDTO> getAllBugs() {
@@ -78,8 +81,8 @@ public class BugCatchingService {
         }
 
         Random random = new Random();
-        if (random.nextInt(100) < 20) { // 20% de probabilidad en actividades
-            int healthReduction = random.nextInt(8) + 3; // Entre 3-10 puntos
+        if (random.nextInt(100) < 20) { // 20% of chance
+            int healthReduction = random.nextInt(8) + 3; // Between 3-10 points
             int newHealth = Math.max(10, villager.getHealthLevel() - healthReduction);
             villager.setHealthLevel(newHealth);
         }
@@ -100,6 +103,18 @@ public class BugCatchingService {
                     .build();
 
             caughtBugRepository.save(caughtBug);
+
+            try {
+                museumService.registerNewDiscovery(
+                        villagerId,
+                        MuseumRecord.RecordType.BUG,
+                        targetBug.getBugId(),
+                        habitat.getHabitatName()
+                );
+            } catch (Exception e) {
+                // Log the error but don't fail the operation
+                System.err.println("Error registering bug in museum: " + e.getMessage());
+            }
 
             // Increase friendship and happiness
             int friendshipGain = calculateFriendshipGain(targetBug.getBugRarity());
