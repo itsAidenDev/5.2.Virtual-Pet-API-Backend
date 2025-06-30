@@ -53,7 +53,7 @@ public class AuthController {
             User user = optionalUser.get();
             if (passwordEncoder.matches(password, user.getPassword())) {
                 String token = jwtUtil.generateToken(user.getUsername(), user.getRole());
-                UserDTO userDTO = new UserDTO(user.getUsername(), user.getRole());
+                UserDTO userDTO = new UserDTO(user.getUsername(), user.getRole(), user.getPoints());
                 return ResponseEntity.ok(new LoginResponseDTO(token, userDTO));
             }
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
@@ -64,7 +64,11 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<UserDTO> getCurrentUser() {
         User user = authUtil.getCurrentUser();
-        UserDTO userDTO = new UserDTO(user.getUsername(), user.getRole());
+        UserDTO userDTO = UserDTO.builder()
+                .username(user.getUsername())
+                .role(user.getRole())
+                .points(user.getPoints())
+                .build();
         return ResponseEntity.ok(userDTO);
     }
 }

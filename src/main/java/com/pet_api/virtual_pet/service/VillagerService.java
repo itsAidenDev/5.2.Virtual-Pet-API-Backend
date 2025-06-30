@@ -116,6 +116,32 @@ public class VillagerService {
     }
 
     @Transactional
+    public VillagerDTO updateVillagerName(Long id, String newName) {
+        Villager villager = villagerRepository.findById(id)
+                .orElseThrow(() -> new VillagerNotFoundException("Villager not found with id: " + id));
+
+        User currentUser = authUtil.getCurrentUser();
+
+        // Verificar permisos
+        if (!currentUser.getRole().equals("ROLE_ADMIN") &&
+                !villager.getUser().getUsername().equals(currentUser.getUsername())) {
+            throw new UnauthorizedAccessException("No tienes permiso para modificar este aldeano");
+        }
+
+        // Validar el nuevo nombre
+        if (newName == null || newName.trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre no puede estar vacío");
+        }
+
+        // Actualizar el nombre
+        villager.setVillagerName(newName.trim());
+        Villager updatedVillager = villagerRepository.save(villager);
+
+        return villagerMapper.toDto(updatedVillager);
+    }
+
+
+    @Transactional
     public ActionResultDTO sleep(Long id) {
         Villager villager = findAndUpdate(id);
 

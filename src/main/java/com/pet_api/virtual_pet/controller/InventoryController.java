@@ -1,5 +1,4 @@
 package com.pet_api.virtual_pet.controller;
-
 import com.pet_api.virtual_pet.dto.inventory.InventoryResponseDTO;
 import com.pet_api.virtual_pet.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/inventory")
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class InventoryController {
 
     @Autowired
@@ -19,8 +18,7 @@ public class InventoryController {
     public ResponseEntity<InventoryResponseDTO> getUserInventory(Authentication authentication) {
         try {
             String username = authentication.getName();
-            InventoryResponseDTO inventory = inventoryService.getUserInventory(username);
-            return ResponseEntity.ok(inventory);
+            return ResponseEntity.ok(inventoryService.getUserInventory(username));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
@@ -30,34 +28,31 @@ public class InventoryController {
     public ResponseEntity<?> getInventoryStats(Authentication authentication) {
         try {
             String username = authentication.getName();
-            var stats = inventoryService.getInventoryStats(username);
-            return ResponseEntity.ok(stats);
+            return ResponseEntity.ok(inventoryService.getInventoryStats(username));
         } catch (Exception e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
     @DeleteMapping("/item/{itemId}")
-    public ResponseEntity<String> deleteInventoryItem(
+    public ResponseEntity<String> sellInventoryItem(
             @PathVariable String itemId,
             Authentication authentication) {
         try {
             String username = authentication.getName();
-            inventoryService.deleteInventoryItem(username, itemId);
-            return ResponseEntity.ok("Item deleted successfully");
+            return ResponseEntity.ok(inventoryService.sellInventoryItem(username, itemId));
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Could not delete item: " + e.getMessage());
+            return ResponseEntity.badRequest().body("Could not sell item: " + e.getMessage());
         }
     }
 
-    @PostMapping("/item/{itemId}/use")
+    @PostMapping("/item/use/{itemId}")
     public ResponseEntity<String> useInventoryItem(
             @PathVariable String itemId,
             Authentication authentication) {
         try {
             String username = authentication.getName();
-            String result = inventoryService.useInventoryItem(username, itemId);
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(inventoryService.useInventoryItem(username, itemId));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Could not use item: " + e.getMessage());
         }

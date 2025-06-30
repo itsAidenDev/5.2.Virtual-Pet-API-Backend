@@ -3,8 +3,10 @@ package com.pet_api.virtual_pet.config;
 import com.pet_api.virtual_pet.model.User;
 import com.pet_api.virtual_pet.model.activities.Bug;
 import com.pet_api.virtual_pet.model.activities.Fish;
+import com.pet_api.virtual_pet.model.decoration.Furniture;
 import com.pet_api.virtual_pet.repository.BugRepository;
 import com.pet_api.virtual_pet.repository.FishRepository;
+import com.pet_api.virtual_pet.repository.FurnitureRepository;
 import com.pet_api.virtual_pet.repository.UserRepository;
 import com.pet_api.virtual_pet.utils.Habitat;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +28,7 @@ public class DataInitializer {
     private final UserRepository userRepository;
     private final BugRepository bugRepository;
     private final FishRepository fishRepository;
+    private final FurnitureRepository furnitureRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Value("${admin.username:admin}")
@@ -40,6 +43,7 @@ public class DataInitializer {
             initAdminUser();
             initBugs();
             initFish();
+            initFurniture();
         };
     }
 
@@ -89,6 +93,48 @@ public class DataInitializer {
             );
             fishRepository.saveAll(fish);
             log.info("Initialized {} fish", fish.size());
+        }
+    }
+
+    private void initFurniture() {
+        if (furnitureRepository.count() == 0) {
+            List<Furniture> furniture = Arrays.asList(
+                    Furniture.builder()
+                            .name("Wooden Chair")
+                            .description("A cozy wooden chair for relaxation")
+                            .price(350)
+                            .category("Living Room")
+                            .imageUrl("/images/furniture/wooden-chair.png")
+                            .happinessBoost(5)
+                            .energyBoost(0)
+                            .rarity("common")
+                            .isInteractive(true)
+                            .build(),
+                    Furniture.builder()
+                            .name("Coffee Table")
+                            .description("Fancy coffee table for your home")
+                            .price(500)
+                            .category("Living Room")
+                            .imageUrl("/images/furniture/coffee-table.jpg")
+                            .happinessBoost(3)
+                            .energyBoost(0)
+                            .rarity("common")
+                            .isInteractive(false)
+                            .build(),
+                    Furniture.builder()
+                            .name("Simple Bed")
+                            .description("Comfortable bed for a relaxing night")
+                            .price(800)
+                            .category("Bedroom")
+                            .imageUrl("/images/furniture/simple-bed.jpg")
+                            .happinessBoost(10)
+                            .energyBoost(15)
+                            .rarity("uncommon")
+                            .isInteractive(true)
+                            .build()
+            );
+            furnitureRepository.saveAll(furniture);
+            log.info("Initialized {} furniture items", furniture.size());
         }
     }
 }

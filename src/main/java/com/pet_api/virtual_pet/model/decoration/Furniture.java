@@ -1,44 +1,45 @@
-/*
 package com.pet_api.virtual_pet.model.decoration;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name = "furniture")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Furniture {
 
     @Id
-    @Column(name = "furniture_id")
-    private int furnitureId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(name = "furniture_name")
-    private String furnitureName;
+    @Column(nullable = false)
+    private String name;
 
-    @Column(name = "furniture_description")
-    private String furnitureDescription;
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
-    @Column(name = "furniture_price")
-    private int furniturePrice;
+    @Column(nullable = false)
+    private int price;
 
+    @Column(nullable = false)
+    private String category; // Ej: "bed", "chair", "table", "decoration"
 
-    @Column(name = "furniture_image")
-    private String furnitureImage;
+    @Column(name = "image_url")
+    private String imageUrl;
 
+    @Column(name = "happiness_boost")
+    private int happinessBoost; // Aumento de felicidad al colocar el mueble
 
-    @ManyToOne
-    @JoinColumn(name = "home_id")
-    private Home home;
+    @Column(name = "energy_boost")
+    private int energyBoost; // Aumento de energía al interactuar con el mueble
 
-    public Furniture(int furnitureId, String furnitureName, String furnitureDescription, int furniturePrice, String furnitureImage) {
-        this.furnitureId = furnitureId;
-        this.furnitureName = furnitureName;
-        this.furnitureDescription = furnitureDescription;
-        this.furniturePrice = furniturePrice;
-        //this.furnitureImage = furnitureImage;
-    }
+    @Column(nullable = false)
+    private String rarity; // "common", "uncommon", "rare", "legendary"
+
+    @Column(name = "is_interactive", nullable = false)
+    private boolean isInteractive; // Si el aldeano puede interactuar con este mueble
 }
-*/

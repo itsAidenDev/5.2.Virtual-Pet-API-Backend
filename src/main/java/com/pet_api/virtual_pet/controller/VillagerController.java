@@ -9,12 +9,13 @@ import com.pet_api.virtual_pet.security.AuthUtil;
 import com.pet_api.virtual_pet.service.VillagerActionService;
 import com.pet_api.virtual_pet.service.VillagerService;
 import lombok.RequiredArgsConstructor;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/villagers")
@@ -57,6 +58,17 @@ public class VillagerController {
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Could not delete villager: " + e.getMessage());
         }
+    }
+
+    @PutMapping("/{id}/name")
+    public ResponseEntity<VillagerDTO> updateVillagerName(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> nameUpdate) {
+        String newName = nameUpdate.get("name");
+        if (newName == null || newName.trim().isEmpty()) {
+            throw new IllegalArgumentException("El nombre no puede estar vacío");
+        }
+        return ResponseEntity.ok(villagerService.updateVillagerName(id, newName));
     }
 
     @PostMapping("/{id}/sleep")

@@ -254,5 +254,59 @@ public class InventoryService {
     private String generateItemId(String type, Long dbId) {
         return type + "_" + dbId;
     }
+
+    public String sellInventoryItem(String username, String itemId) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Parse the item ID to get type and database ID
+        String[] parts = itemId.split("_");
+        if (parts.length != 2) {
+            throw new RuntimeException("Invalid item ID format");
+        }
+        String itemType = parts[0].toUpperCase();
+        Long dbId;
+        try {
+            dbId = Long.parseLong(parts[1]);
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Invalid item ID format");
+        }
+
+        int pointsGained = 0;
+        String itemName = "";
+
+        if ("BUG".equals(itemType)) {
+            CaughtBug caughtBug = caughtBugRepository.findById(dbId)
+                    .orElseThrow(() -> new RuntimeException("Bug not found"));
+
+            if (!caughtBug.getVillager().getUser().equals(user)) {
+                throw new RuntimeException("You don't own this item");
+            }
+
+            pointsGained = caughtBug.getBug().getBugValue();
+            itemName = caughtBug.getBug().getBugName();
+            caughtBugRepository.delete(caughtBug);
+
+        } else if ("FISH".equals(itemType)) {
+            CaughtFish caughtFish = caughtFishRepository.findById(dbId)
+                    .orElseThrow(() -> new RuntimeException("Fish not found"));
+
+            if (!caughtFish.getVillager().getUser().equals(user)) {
+                throw new RuntimeException("You don't own this item");
+            }
+
+            pointsGained = caughtFish.getFish().getFishValue();
+            itemName = caughtFish.getFish().getFishName();
+            caughtFishRepository.delete(caughtFish);
+
+        } else {
+            throw new RuntimeException("Invalid item type");
+        }
+
+        user.setPoints(user.getPoints() + pointsGained);
+        userRepository.save(user);
+
+        return String.format("Sold %s for %d points!", itemName, pointsGained);
+    }
 }
 

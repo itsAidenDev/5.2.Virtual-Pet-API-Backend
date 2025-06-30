@@ -1,8 +1,6 @@
 package com.pet_api.virtual_pet.exception;
 
-import com.pet_api.virtual_pet.exception.custom.UnauthorizedAccessException;
-import com.pet_api.virtual_pet.exception.custom.UserNotFoundException;
-import com.pet_api.virtual_pet.exception.custom.VillagerNotFoundException;
+import com.pet_api.virtual_pet.exception.custom.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -25,15 +23,24 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Object>  handleResourceNotFoundException(ResourceNotFoundException ex) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
     @ExceptionHandler(UnauthorizedAccessException.class)
     public ResponseEntity<Object>  handleUnauthorizedAccessException(UnauthorizedAccessException ex) {
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
+    @ExceptionHandler(InsufficientFundsException.class)
+    public ResponseEntity<Object>  handleInsufficientFundsException(InsufficientFundsException ex) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object>  handleGenericException(Exception ex) {
         return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
-
     }
 
     private ResponseEntity<Object> buildErrorResponse(HttpStatus status, String message) {

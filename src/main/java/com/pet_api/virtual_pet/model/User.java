@@ -26,6 +26,14 @@ public class User {
     private String password;
     private String role;
 
+
+    @Column(nullable = false)
+    @Builder.Default
+    private int points = 1000;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Villager> villagers = new ArrayList<>();
+
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Villager> user_villagers = new ArrayList<>();
 }
