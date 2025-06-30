@@ -1,4 +1,4 @@
-package com.pet_api.virtual_pet.repository;
+package com.pet_api.virtual_pet.repository.activities;
 
 import com.pet_api.virtual_pet.model.activities.Bug;
 import com.pet_api.virtual_pet.utils.Habitat;

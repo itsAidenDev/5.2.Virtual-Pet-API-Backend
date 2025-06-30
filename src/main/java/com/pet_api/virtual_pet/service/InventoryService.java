@@ -10,6 +10,10 @@ import com.pet_api.virtual_pet.model.activities.CaughtBug;
 import com.pet_api.virtual_pet.model.activities.CaughtFish;
 import com.pet_api.virtual_pet.model.activities.Fish;
 import com.pet_api.virtual_pet.repository.*;
+import com.pet_api.virtual_pet.repository.activities.BugRepository;
+import com.pet_api.virtual_pet.repository.activities.CaughtBugRepository;
+import com.pet_api.virtual_pet.repository.activities.CaughtFishRepository;
+import com.pet_api.virtual_pet.repository.activities.FishRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

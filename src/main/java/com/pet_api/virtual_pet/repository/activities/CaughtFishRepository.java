@@ -1,4 +1,4 @@
-package com.pet_api.virtual_pet.repository;
+package com.pet_api.virtual_pet.repository.activities;
 
 import com.pet_api.virtual_pet.model.activities.CaughtFish;
 import org.springframework.data.jpa.repository.JpaRepository;
