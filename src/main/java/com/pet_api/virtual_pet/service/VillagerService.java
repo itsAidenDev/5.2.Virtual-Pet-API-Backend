@@ -96,14 +96,21 @@ public class VillagerService {
         Villager villager = villagerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Villager not found"));
 
-        if (!villager.getUser().equals(user)) {
-            throw new RuntimeException("You don't own this villager");
+        // Verificar si el usuario es administrador o el dueño del aldeano
+        boolean isAdmin = currentUser.getRole().equals("ROLE_ADMIN");
+        boolean isOwner = villager.getUser().equals(user);
+
+        if (!isAdmin && !isOwner) {
+            throw new UnauthorizedAccessException("You do not have permission to delete this villager");
         }
 
         String villagerName = villager.getVillagerName();
+        String ownerName = isAdmin && !isOwner ?
+                " (belongs to " + villager.getUser().getUsername() + ")" : "";
 
         // Delete all caught bugs by this villager
-        List<CaughtBug> caughtBugs = caughtBugRepository.findByVillagerVillagerId(villager.getVillagerId());        caughtBugRepository.deleteAll(caughtBugs);
+        List<CaughtBug> caughtBugs = caughtBugRepository.findByVillagerVillagerId(villager.getVillagerId());
+        caughtBugRepository.deleteAll(caughtBugs);
 
         // Delete all caught fish by this villager
         List<CaughtFish> caughtFish = caughtFishRepository.findByVillagerVillagerId(villager.getVillagerId());
@@ -112,7 +119,7 @@ public class VillagerService {
         // Delete the villager
         villagerRepository.delete(villager);
 
-        return String.format("%s has been released and will be missed. All their collected items have been removed from your inventory.", villagerName);
+        return String.format("%s has been released and will be missed. All their collected items have been removed from your inventory.", villagerName, ownerName);
     }
 
     @Transactional
